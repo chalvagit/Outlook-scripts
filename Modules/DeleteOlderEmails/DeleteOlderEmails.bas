@@ -1,4 +1,4 @@
-Sub MarkAllItemsAsRead()
+Sub DeleteOlderEmails()
     Dim objStores As Outlook.Stores
     Dim objStore As Outlook.Store
     Dim objOutlookFile As Outlook.Folder
@@ -17,20 +17,20 @@ Sub MarkAllItemsAsRead()
 End Sub
 
 Sub ProcessFolders(ByVal objCurFolder As Outlook.Folder)
-    Dim objUnreadItems As Outlook.Items
-    Dim objUnreadItem As Object
+    Dim olderDate As Date
+    Dim objOlderItems As Outlook.Items
+    Dim objOlderItem As Object
     Dim i As Integer
     Dim objSubFolder As Outlook.Folder
  
-    Set objUnreadItems = objCurFolder.Items.Restrict("[Unread]=True")
-    Set objUnreadItem = objCurFolder.Items.Find("[Unread]=True")
-    Total = objUnreadItems.Count
-    If Not (objUnreadItem Is Nothing) Then
-        For i = 1 To Total
-            objUnreadItem.UnRead = False
-            Set objUnreadItem = objCurFolder.Items.Find("[Unread]=True")
-        Next
-    End If
+    olderDate = DateAdd("m", <NUM>, Date)
+    olderDate = DateSerial(Year(olderDate), Month(olderDate), 1)
+    Set objOlderItems = objCurFolder.Items.Restrict("[ReceivedTime]< '" & olderDate & "'")
+    Total = objOlderItems.Count
+    For i = Total To 1 Step -1
+        Set objOlderItem = objOlderItems.Item(i)
+        objOlderItem.Delete
+    Next
  
     'Process subfolders recursively
     If objCurFolder.folders.Count > 0 Then
